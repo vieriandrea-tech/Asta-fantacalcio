@@ -22,6 +22,8 @@
     --go-ink: #ffffff;
     --danger: #b3402b;
     --danger-ink: #ffffff;
+    --busta: #5b4b9e;
+    --busta-ink: #ffffff;
     --live-glow: rgba(47, 125, 70, 0.18);
     --shadow: 0 1px 2px rgba(16, 26, 20, 0.06), 0 8px 24px rgba(16, 26, 20, 0.08);
     color-scheme: light dark;
@@ -43,6 +45,8 @@
       --go-ink: #06180c;
       --danger: #e2694c;
       --danger-ink: #2b0d05;
+      --busta: #9d8ce8;
+      --busta-ink: #150f2c;
       --live-glow: rgba(75, 171, 104, 0.16);
       --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.45);
     }
@@ -61,6 +65,8 @@
     --go-ink: #06180c;
     --danger: #e2694c;
     --danger-ink: #2b0d05;
+    --busta: #9d8ce8;
+    --busta-ink: #150f2c;
     --live-glow: rgba(75, 171, 104, 0.16);
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.45);
   }
@@ -185,18 +191,7 @@
     color: var(--ink);
     width: 100%;
   }
-  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-  .chip {
-    border: 1px solid var(--line);
-    background: var(--bg-raised);
-    color: var(--ink-dim);
-    border-radius: 999px;
-    padding: 6px 12px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .chip.active { border-color: var(--go); color: var(--go); background: color-mix(in srgb, var(--go) 10%, var(--bg-raised)); }
+  .hint { font-size: 12px; color: var(--ink-dim); margin: 6px 0 0; }
 
   .btn {
     appearance: none;
@@ -210,6 +205,7 @@
     margin-top: 16px;
   }
   .btn-go { background: var(--go); color: var(--go-ink); }
+  .btn-busta { background: var(--busta); color: var(--busta-ink); }
   .btn-ghost {
     background: transparent;
     color: var(--ink-dim);
@@ -217,11 +213,66 @@
   }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+  /* ---------- turn / roster panel ---------- */
+  .turn-line {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .turn-name {
+    font-family: 'Big Shoulders Display', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--go);
+  }
+  .link-btn {
+    background: none;
+    border: none;
+    color: var(--ink-dim);
+    font-size: 12px;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 4px;
+  }
+  .roster-editor { margin-top: 14px; }
+  .roster-list { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .roster-list li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 7px 10px;
+    font-size: 14px;
+  }
+  .roster-list .idx { color: var(--ink-dim); font-size: 12px; width: 18px; flex: none; }
+  .roster-list .rname { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .roster-list button {
+    border: none;
+    background: transparent;
+    color: var(--ink-dim);
+    cursor: pointer;
+    padding: 4px 6px;
+    font-size: 13px;
+    border-radius: 6px;
+  }
+  .roster-list button:hover { color: var(--ink); background: var(--line); }
+  .roster-add { display: flex; gap: 8px; margin-top: 10px; }
+  .roster-add input { flex: 1; font-size: 15px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-raised); color: var(--ink); }
+  .roster-add button { flex: none; border: none; border-radius: 10px; background: var(--go); color: var(--go-ink); font-weight: 700; padding: 0 16px; cursor: pointer; }
+
   /* ---------- live scoreboard ---------- */
   .item-label {
-    font-size: 13px;
-    color: var(--ink-dim);
-    font-weight: 600;
+    font-family: 'Big Shoulders Display', sans-serif;
+    font-weight: 800;
+    font-size: clamp(24px, 7vw, 36px);
+    letter-spacing: 0.01em;
+    text-align: center;
+    margin: 0 0 4px;
+    text-wrap: balance;
   }
   .scoreboard {
     text-align: center;
@@ -268,30 +319,23 @@
   }
   .timer-readout .secs { font-size: 15px; font-weight: 700; color: var(--ink); }
 
-  .bid-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-    margin-top: 22px;
-  }
-  @media (max-width: 420px) {
-    .bid-grid { grid-template-columns: repeat(3, 1fr); }
-  }
-  .bid-btn {
+  .bid-grid { margin-top: 22px; }
+  .bid-big-btn {
     appearance: none;
     border: 1px solid var(--go);
-    background: color-mix(in srgb, var(--go) 12%, var(--bg-raised));
+    background: color-mix(in srgb, var(--go) 14%, var(--bg-raised));
     color: var(--go);
-    border-radius: 12px;
-    padding: 14px 4px;
+    border-radius: 14px;
+    padding: 20px 4px;
     font-family: 'Big Shoulders Display', sans-serif;
     font-weight: 800;
-    font-size: 20px;
+    font-size: 32px;
     cursor: pointer;
-    min-height: 52px;
+    width: 100%;
+    min-height: 64px;
   }
-  .bid-btn:active { transform: translateY(1px); }
-  .bid-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .bid-big-btn:active { transform: translateY(1px); }
+  .bid-big-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
   .custom-bid {
     display: flex;
@@ -332,6 +376,122 @@
     padding: 6px;
   }
 
+  /* ---------- busta panel ---------- */
+  .busta-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Big Shoulders Display', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 800;
+    font-size: 12px;
+    color: var(--busta-ink);
+    background: var(--busta);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin: 0 auto 10px;
+  }
+  .busta-context {
+    text-align: center;
+    font-size: 13px;
+    color: var(--ink-dim);
+    margin-top: 2px;
+  }
+  .busta-personal {
+    margin-top: 18px;
+    border: 1px solid var(--busta);
+    border-radius: 14px;
+    padding: 16px;
+    background: color-mix(in srgb, var(--busta) 8%, var(--panel));
+  }
+  .busta-status {
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+  }
+  .busta-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .busta-actions input {
+    flex: 1;
+    font-size: 16px;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--bg-raised);
+    color: var(--ink);
+  }
+  .busta-actions button {
+    flex: none;
+    border-radius: 10px;
+    border: none;
+    background: var(--busta);
+    color: var(--busta-ink);
+    font-weight: 700;
+    padding: 0 16px;
+    cursor: pointer;
+  }
+  .busta-decline {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink-dim);
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .responder-grid {
+    margin-top: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .responder-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--bg-raised);
+    color: var(--ink-dim);
+  }
+  .responder-chip.done { border-color: var(--go); color: var(--go); background: color-mix(in srgb, var(--go) 10%, var(--bg-raised)); }
+  .reveal-wait { text-align: center; font-size: 12px; color: var(--ink-dim); margin-top: 10px; }
+
+  /* ---------- reveal sequence ---------- */
+  .reveal-list {
+    list-style: none;
+    margin: 16px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .reveal-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    opacity: 0;
+    transform: translateY(6px);
+    animation: reveal-in 0.35s ease-out forwards;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal-row { animation: none; opacity: 1; transform: none; }
+  }
+  @keyframes reveal-in { to { opacity: 1; transform: translateY(0); } }
+  .reveal-row.winner { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, var(--bg-raised)); }
+  .reveal-row .rn { font-weight: 600; }
+  .reveal-row .ramt { font-weight: 700; }
+  .reveal-row.declined .ramt { color: var(--ink-dim); font-weight: 500; }
+
   /* ---------- sold banner ---------- */
   .sold-panel {
     text-align: center;
@@ -356,6 +516,7 @@
   .sold-name { font-size: clamp(26px, 7vw, 34px); font-weight: 800; margin: 14px 0 2px; }
   .sold-amount { font-size: clamp(44px, 12vw, 60px); font-weight: 800; color: var(--accent); }
   .sold-item { color: var(--ink-dim); font-size: 14px; margin-top: 2px; }
+  .sold-none { font-size: 15px; color: var(--ink-dim); margin-top: 14px; }
 
   /* ---------- log ---------- */
   .log-panel { margin-top: 16px; }
@@ -422,9 +583,42 @@
     padding: 20px;
     z-index: 50;
   }
-  .overlay .panel { max-width: 360px; width: 100%; margin: 0; }
+  .overlay .panel { max-width: 380px; width: 100%; margin: 0; max-height: 86vh; overflow-y: auto; }
   .overlay h2 { margin: 0 0 4px; font-size: 24px; }
   .overlay p { color: var(--ink-dim); font-size: 14px; margin: 0; }
+  .name-pick-list { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+  .name-pick-btn {
+    text-align: left;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--bg-raised);
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .name-pick-btn:hover { border-color: var(--go); color: var(--go); }
+
+  /* ---------- toast ---------- */
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%) translateY(10px);
+    background: var(--ink);
+    color: var(--bg);
+    padding: 11px 18px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: var(--shadow);
+    z-index: 60;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
@@ -442,15 +636,34 @@
   <div class="wrap">
 
     <section class="panel sold-panel" id="panelSold" hidden>
-      <span class="sold-tag">Aggiudicato</span>
-      <div class="sold-name" id="soldName">—</div>
-      <div class="sold-amount mono" id="soldAmount">0</div>
-      <div class="sold-item" id="soldItem"></div>
-      <button class="btn btn-go" id="nextRoundBtn" type="button">Prossima chiamata</button>
+      <span class="sold-tag" id="soldTag">Aggiudicato</span>
+      <ol class="reveal-list" id="revealList" hidden></ol>
+      <div id="soldOutcome">
+        <div class="sold-name" id="soldName">—</div>
+        <div class="sold-amount mono" id="soldAmount">0</div>
+        <div class="sold-item" id="soldItem"></div>
+      </div>
+      <p class="sold-none" id="soldNone" hidden>Nessuno ha fatto un'offerta: busta senza esito.</p>
+      <button class="btn btn-go" id="nextRoundBtn" type="button" hidden>Prossima chiamata</button>
     </section>
 
     <section class="panel" id="panelStart" hidden>
-      <p class="eyebrow">Nuova chiamata</p>
+      <div class="turn-line" id="turnLine" hidden>
+        <span>Tocca a chiamare: <span class="turn-name" id="turnName">—</span></span>
+      </div>
+      <button class="link-btn" id="toggleRosterBtn" type="button" style="margin-top:6px;">Modifica elenco partecipanti</button>
+
+      <div class="roster-editor" id="rosterEditor" hidden>
+        <p class="eyebrow" style="margin:0;">Ordine di chiamata</p>
+        <ol class="roster-list" id="rosterList"></ol>
+        <div class="roster-add">
+          <input type="text" id="rosterAddInput" placeholder="Nome partecipante" maxlength="40">
+          <button type="button" id="rosterAddBtn">Aggiungi</button>
+        </div>
+        <p class="hint">L'ordine qui sopra è quello con cui ci si alterna a chiamare i giocatori. Trascina non serve: usa le frecce per spostare.</p>
+      </div>
+
+      <p class="eyebrow" style="margin-top:22px;">Nuova chiamata</p>
       <h2 style="margin:0;font-size:22px;">Chi mettiamo all'asta?</h2>
 
       <div class="field">
@@ -463,50 +676,64 @@
         <input type="number" id="startPrice" value="1" min="0" step="1" inputmode="numeric">
       </div>
 
-      <div class="field">
-        <label for="timerSeconds">Secondi tra un rilancio e l'altro</label>
-        <input type="number" id="timerSeconds" value="15" min="3" max="180" step="1" inputmode="numeric">
-        <div class="chip-row" id="timerChips">
-          <button type="button" class="chip" data-secs="5">5s</button>
-          <button type="button" class="chip" data-secs="10">10s</button>
-          <button type="button" class="chip active" data-secs="15">15s</button>
-          <button type="button" class="chip" data-secs="20">20s</button>
-          <button type="button" class="chip" data-secs="30">30s</button>
-          <button type="button" class="chip" data-secs="60">60s</button>
-        </div>
-      </div>
+      <p class="hint">Rilanci da 10 secondi ciascuno. Sopra i 100 crediti si passa automaticamente alla busta chiusa.</p>
 
       <button class="btn btn-go" id="startBtn" type="button">Avvia l'asta</button>
     </section>
 
     <section class="panel" id="panelLive" hidden>
-      <div class="scoreboard">
-        <p class="item-label" id="liveItemLabel"></p>
-        <p class="eyebrow" style="margin-top:10px;">Offerta attuale</p>
-        <div class="bid-amount mono"><span id="liveBid">0</span><span class="unit">crediti</span></div>
-        <p class="bidder">Rilancio di <strong id="liveBidder">base d'asta</strong></p>
+
+      <div id="openView">
+        <div class="scoreboard">
+          <p class="item-label" id="liveItemLabel"></p>
+          <p class="eyebrow" style="margin-top:10px;">Offerta attuale</p>
+          <div class="bid-amount mono"><span id="liveBid">0</span><span class="unit">crediti</span></div>
+          <p class="bidder">Rilancio di <strong id="liveBidder">base d'asta</strong></p>
+        </div>
+
+        <div class="timerbar"><div class="timerbar-fill" id="timerFill"></div></div>
+        <div class="timer-readout">
+          <span>Tempo al prossimo blocco</span>
+          <span class="secs mono" id="timerSecs">—</span>
+        </div>
+
+        <div class="bid-grid">
+          <button class="bid-big-btn" type="button" id="plusOneBtn">+1</button>
+        </div>
+
+        <div class="custom-bid">
+          <input type="number" id="customAmt" placeholder="Rilancio libero, es. 7" min="1" step="1" inputmode="numeric" aria-label="Rilancio libero in crediti">
+          <button type="button" id="customBtn">Rilancia</button>
+        </div>
+
+        <button class="cancel-link" id="cancelRoundBtn" type="button">Annulla questa chiamata</button>
       </div>
 
-      <div class="timerbar"><div class="timerbar-fill" id="timerFill"></div></div>
-      <div class="timer-readout">
-        <span>Tempo al prossimo blocco</span>
-        <span class="secs mono" id="timerSecs">—</span>
-      </div>
+      <div id="bustaView" hidden>
+        <p class="item-label" id="bustaItemLabel"></p>
+        <div style="text-align:center;">
+          <span class="busta-tag">Busta chiusa</span>
+        </div>
+        <p class="busta-context" id="bustaContext"></p>
 
-      <div class="bid-grid" id="bidGrid">
-        <button class="bid-btn" type="button" data-amt="1">+1</button>
-        <button class="bid-btn" type="button" data-amt="2">+2</button>
-        <button class="bid-btn" type="button" data-amt="3">+3</button>
-        <button class="bid-btn" type="button" data-amt="5">+5</button>
-        <button class="bid-btn" type="button" data-amt="10">+10</button>
-      </div>
+        <div class="busta-personal" id="bustaPersonal">
+          <p class="busta-status" id="bustaStatus">Scrivi la tua offerta segreta</p>
+          <div class="busta-actions">
+            <input type="number" id="bustaAmt" placeholder="Quanto offri?" min="1" step="1" inputmode="numeric" aria-label="La tua offerta in crediti">
+            <button type="button" id="bustaSendBtn">Invia</button>
+          </div>
+          <button type="button" class="busta-decline" id="bustaDeclineBtn">Non partecipo a questa busta</button>
+        </div>
+        <p class="busta-status" id="bustaNotInvolved" hidden style="margin-top:18px;">Sei fuori da questo giro: si aspetta solo chi era in parità.</p>
 
-      <div class="custom-bid">
-        <input type="number" id="customAmt" placeholder="Rilancio libero, es. 7" min="1" step="1" inputmode="numeric" aria-label="Rilancio libero in crediti">
-        <button type="button" id="customBtn">Rilancia</button>
-      </div>
+        <p class="eyebrow" style="margin-top:18px;">Chi ha già risposto</p>
+        <div class="responder-grid" id="responderGrid"></div>
 
-      <button class="cancel-link" id="cancelRoundBtn" type="button">Annulla questa chiamata</button>
+        <button class="btn btn-busta" id="revealBtn" type="button" disabled>Rivela il risultato</button>
+        <p class="reveal-wait" id="revealWait"></p>
+
+        <button class="cancel-link" id="cancelRoundBtn2" type="button">Annulla questa chiamata</button>
+      </div>
     </section>
 
     <section class="panel log-panel">
@@ -525,14 +752,17 @@
   <div class="overlay" id="nameGate">
     <div class="panel">
       <h2>Come ti chiami?</h2>
-      <p>Il nome comparirà accanto ai tuoi rilanci, visibile a tutti.</p>
-      <div class="field">
+      <p id="nameGateHint">Il nome comparirà accanto ai tuoi rilanci, visibile a tutti.</p>
+      <div class="name-pick-list" id="namePickList" hidden></div>
+      <div class="field" id="nameFreeField">
         <label for="nameInput">Nome o soprannome</label>
         <input type="text" id="nameInput" maxlength="40" placeholder="Es. Marco" autocomplete="off">
       </div>
       <button class="btn btn-go" id="saveNameBtn" type="button">Entra nell'asta</button>
     </div>
   </div>
+
+  <div class="toast" id="toast"></div>
 
 <script>
 (function () {
@@ -544,46 +774,85 @@
     meName: document.getElementById('meName'),
     editNameBtn: document.getElementById('editNameBtn'),
     nameGate: document.getElementById('nameGate'),
+    nameGateHint: document.getElementById('nameGateHint'),
+    namePickList: document.getElementById('namePickList'),
+    nameFreeField: document.getElementById('nameFreeField'),
     nameInput: document.getElementById('nameInput'),
     saveNameBtn: document.getElementById('saveNameBtn'),
 
     panelSold: document.getElementById('panelSold'),
+    soldTag: document.getElementById('soldTag'),
+    revealList: document.getElementById('revealList'),
+    soldOutcome: document.getElementById('soldOutcome'),
     soldName: document.getElementById('soldName'),
     soldAmount: document.getElementById('soldAmount'),
     soldItem: document.getElementById('soldItem'),
+    soldNone: document.getElementById('soldNone'),
     nextRoundBtn: document.getElementById('nextRoundBtn'),
 
     panelStart: document.getElementById('panelStart'),
+    turnLine: document.getElementById('turnLine'),
+    turnName: document.getElementById('turnName'),
+    toggleRosterBtn: document.getElementById('toggleRosterBtn'),
+    rosterEditor: document.getElementById('rosterEditor'),
+    rosterList: document.getElementById('rosterList'),
+    rosterAddInput: document.getElementById('rosterAddInput'),
+    rosterAddBtn: document.getElementById('rosterAddBtn'),
     itemLabel: document.getElementById('itemLabel'),
     startPrice: document.getElementById('startPrice'),
-    timerSeconds: document.getElementById('timerSeconds'),
-    timerChips: document.getElementById('timerChips'),
     startBtn: document.getElementById('startBtn'),
 
     panelLive: document.getElementById('panelLive'),
+    openView: document.getElementById('openView'),
     liveItemLabel: document.getElementById('liveItemLabel'),
     liveBid: document.getElementById('liveBid'),
     liveBidder: document.getElementById('liveBidder'),
     timerFill: document.getElementById('timerFill'),
     timerSecs: document.getElementById('timerSecs'),
-    bidGrid: document.getElementById('bidGrid'),
+    plusOneBtn: document.getElementById('plusOneBtn'),
     customAmt: document.getElementById('customAmt'),
     customBtn: document.getElementById('customBtn'),
     cancelRoundBtn: document.getElementById('cancelRoundBtn'),
 
+    bustaView: document.getElementById('bustaView'),
+    bustaItemLabel: document.getElementById('bustaItemLabel'),
+    bustaContext: document.getElementById('bustaContext'),
+    bustaPersonal: document.getElementById('bustaPersonal'),
+    bustaStatus: document.getElementById('bustaStatus'),
+    bustaNotInvolved: document.getElementById('bustaNotInvolved'),
+    bustaAmt: document.getElementById('bustaAmt'),
+    bustaSendBtn: document.getElementById('bustaSendBtn'),
+    bustaDeclineBtn: document.getElementById('bustaDeclineBtn'),
+    responderGrid: document.getElementById('responderGrid'),
+    revealBtn: document.getElementById('revealBtn'),
+    revealWait: document.getElementById('revealWait'),
+    cancelRoundBtn2: document.getElementById('cancelRoundBtn2'),
+
     logList: document.getElementById('logList'),
     logEmpty: document.getElementById('logEmpty'),
     presenceRow: document.getElementById('presenceRow'),
+
+    toast: document.getElementById('toast'),
   };
 
   var myName = '';
   try { myName = localStorage.getItem('astaFanta.name') || ''; } catch (e) {}
 
   var latestState = null;
+  var latestRoster = [];
   var ws = null;
   var wsReady = false;
   var reconnectDelay = 1000;
   var tickHandle = null;
+  var toastHandle = null;
+  var revealedKey = null; // evita di rilanciare l'animazione di rivelazione più volte
+
+  function showToast(msg) {
+    els.toast.textContent = msg;
+    els.toast.classList.add('show');
+    if (toastHandle) clearTimeout(toastHandle);
+    toastHandle = setTimeout(function () { els.toast.classList.remove('show'); }, 3200);
+  }
 
   function saveName(n) {
     myName = n;
@@ -591,28 +860,47 @@
     els.meName.textContent = n;
   }
 
-  function openNameGate(prefill) {
-    els.nameInput.value = prefill || '';
+  function openNameGate() {
+    var roster = latestRoster || [];
+    if (roster.length) {
+      els.nameGateHint.textContent = 'Scegli il tuo nome dall’elenco dei partecipanti.';
+      els.namePickList.innerHTML = '';
+      roster.forEach(function (n) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'name-pick-btn';
+        b.textContent = n;
+        b.addEventListener('click', function () { commitName(n); });
+        els.namePickList.appendChild(b);
+      });
+      els.namePickList.hidden = false;
+      els.nameFreeField.hidden = true;
+    } else {
+      els.nameGateHint.textContent = 'Il nome comparirà accanto ai tuoi rilanci, visibile a tutti.';
+      els.namePickList.hidden = true;
+      els.nameFreeField.hidden = false;
+      els.nameInput.value = myName || '';
+    }
     els.nameGate.hidden = false;
-    setTimeout(function () { els.nameInput.focus(); }, 30);
+    setTimeout(function () { if (!els.nameFreeField.hidden) els.nameInput.focus(); }, 30);
   }
 
-  els.editNameBtn.addEventListener('click', function () { openNameGate(myName); });
+  els.editNameBtn.addEventListener('click', openNameGate);
 
-  function commitName() {
-    var v = els.nameInput.value.trim();
+  function commitName(v) {
+    v = (v || '').trim();
     if (!v) { els.nameInput.focus(); return; }
     saveName(v);
     els.nameGate.hidden = true;
     send({ type: 'hello', name: v });
   }
-  els.saveNameBtn.addEventListener('click', commitName);
-  els.nameInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') commitName(); });
+  els.saveNameBtn.addEventListener('click', function () { commitName(els.nameInput.value); });
+  els.nameInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') commitName(els.nameInput.value); });
 
   if (myName) {
     els.meName.textContent = myName;
   } else {
-    openNameGate('');
+    openNameGate();
   }
 
   // ---------- websocket ----------
@@ -650,7 +938,10 @@
       try { msg = JSON.parse(evt.data); } catch (e) { return; }
       if (msg.type === 'state') {
         latestState = msg.state;
-        renderState(latestState, msg.presence || []);
+        latestRoster = msg.roster || [];
+        renderState(msg);
+      } else if (msg.type === 'notice') {
+        showToast(msg.message);
       }
     };
   }
@@ -660,30 +951,46 @@
 
   function fmt(n) { return (n || 0).toLocaleString('it-IT'); }
 
-  function renderState(state, presence) {
+  function renderState(msg) {
+    var state = msg.state;
+    var presence = msg.presence || [];
+    var roster = msg.roster || [];
+    var turnName = msg.turnName;
+
     els.panelSold.hidden = state.status !== 'sold';
     els.panelStart.hidden = state.status === 'live' || state.status === 'sold';
     els.panelLive.hidden = state.status !== 'live';
 
+    // --- pannello di avvio + turno ---
+    if (turnName) {
+      els.turnLine.hidden = false;
+      els.turnName.textContent = turnName;
+    } else {
+      els.turnLine.hidden = true;
+    }
+    renderRosterEditor(roster);
+
+    // --- pannello aggiudicato ---
     if (state.status === 'sold') {
-      els.soldName.textContent = state.soldTo || 'Nessuno';
-      els.soldAmount.textContent = fmt(state.soldAmount) + ' crediti';
-      els.soldItem.textContent = state.soldItem ? state.soldItem : '';
+      renderSold(state);
     }
 
-    if (state.status === 'idle' || state.status === 'sold') {
-      if (document.activeElement !== els.timerSeconds) {
-        els.timerSeconds.value = state.timerSeconds || 15;
-        highlightChip(state.timerSeconds || 15);
-      }
-    }
-
+    // --- pannello live ---
     if (state.status === 'live') {
       els.liveItemLabel.textContent = state.itemLabel || '';
-      els.liveItemLabel.style.display = state.itemLabel ? '' : 'none';
-      els.liveBid.textContent = fmt(state.currentBid);
-      els.liveBidder.textContent = state.currentBidder || 'base d’asta';
-      startTicker(state.roundEndsAt, state.timerSeconds || 15);
+      els.bustaItemLabel.textContent = state.itemLabel || '';
+      var isBusta = state.mode === 'busta';
+      els.openView.hidden = isBusta;
+      els.bustaView.hidden = !isBusta;
+
+      if (!isBusta) {
+        els.liveBid.textContent = fmt(state.currentBid);
+        els.liveBidder.textContent = state.currentBidder || 'base d’asta';
+        startTicker(state.roundEndsAt, 10);
+      } else {
+        stopTicker();
+        renderBusta(state);
+      }
     } else {
       stopTicker();
     }
@@ -692,11 +999,169 @@
     renderPresence(presence);
   }
 
-  function highlightChip(secs) {
-    var chips = els.timerChips.querySelectorAll('.chip');
-    for (var i = 0; i < chips.length; i++) {
-      chips[i].classList.toggle('active', Number(chips[i].dataset.secs) === Number(secs));
+  function renderRosterEditor(roster) {
+    els.rosterList.innerHTML = '';
+    roster.forEach(function (name, i) {
+      var li = document.createElement('li');
+
+      var idx = document.createElement('span');
+      idx.className = 'idx';
+      idx.textContent = (i + 1) + '.';
+
+      var rn = document.createElement('span');
+      rn.className = 'rname';
+      rn.textContent = name;
+
+      var up = document.createElement('button');
+      up.type = 'button';
+      up.textContent = '↑';
+      up.disabled = i === 0;
+      up.addEventListener('click', function () { moveRoster(roster, i, -1); });
+
+      var down = document.createElement('button');
+      down.type = 'button';
+      down.textContent = '↓';
+      down.disabled = i === roster.length - 1;
+      down.addEventListener('click', function () { moveRoster(roster, i, 1); });
+
+      var rm = document.createElement('button');
+      rm.type = 'button';
+      rm.textContent = '✕';
+      rm.addEventListener('click', function () {
+        var next = roster.slice();
+        next.splice(i, 1);
+        send({ type: 'setRoster', names: next });
+      });
+
+      li.appendChild(idx);
+      li.appendChild(rn);
+      li.appendChild(up);
+      li.appendChild(down);
+      li.appendChild(rm);
+      els.rosterList.appendChild(li);
+    });
+  }
+
+  function moveRoster(roster, i, dir) {
+    var j = i + dir;
+    if (j < 0 || j >= roster.length) return;
+    var next = roster.slice();
+    var tmp = next[i]; next[i] = next[j]; next[j] = tmp;
+    send({ type: 'setRoster', names: next });
+  }
+
+  els.toggleRosterBtn.addEventListener('click', function () {
+    els.rosterEditor.hidden = !els.rosterEditor.hidden;
+  });
+
+  function addRosterName() {
+    var v = els.rosterAddInput.value.trim();
+    if (!v) return;
+    var next = latestRoster.concat([v]);
+    send({ type: 'setRoster', names: next });
+    els.rosterAddInput.value = '';
+  }
+  els.rosterAddBtn.addEventListener('click', addRosterName);
+  els.rosterAddInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') addRosterName(); });
+
+  function renderSold(state) {
+    var hasReveal = Array.isArray(state.bustaResult) && state.bustaResult.length > 0;
+    var key = state.itemLabel + '|' + state.soldTo + '|' + state.soldAmount + '|' + (hasReveal ? 'r' : 'o');
+
+    els.soldTag.textContent = state.soldVia === 'busta-none' ? 'Busta senza esito' : 'Aggiudicato';
+    els.soldNone.hidden = state.soldVia !== 'busta-none';
+    els.soldOutcome.hidden = state.soldVia === 'busta-none';
+    els.soldName.textContent = state.soldTo || 'Nessuno';
+    els.soldAmount.textContent = fmt(state.soldAmount) + ' crediti';
+    els.soldItem.textContent = state.soldItem ? state.soldItem : '';
+
+    if (hasReveal && revealedKey !== key) {
+      revealedKey = key;
+      playReveal(state.bustaResult, state.soldTo);
+    } else if (!hasReveal) {
+      els.revealList.hidden = true;
+      els.revealList.innerHTML = '';
+      els.soldOutcome.style.display = '';
+      els.nextRoundBtn.hidden = false;
     }
+  }
+
+  function playReveal(result, winnerName) {
+    els.revealList.innerHTML = '';
+    els.revealList.hidden = false;
+    els.soldOutcome.style.display = 'none';
+    els.nextRoundBtn.hidden = true;
+
+    // rivela dal più basso al più alto per creare un po' di suspense
+    var ordered = result.slice().sort(function (a, b) {
+      if (a.declined !== b.declined) return a.declined ? -1 : 1;
+      return (a.amount || 0) - (b.amount || 0);
+    });
+
+    ordered.forEach(function (entry, i) {
+      var li = document.createElement('li');
+      li.className = 'reveal-row' + (entry.declined ? ' declined' : '') + (!entry.declined && entry.name === winnerName ? ' winner' : '');
+      li.style.animationDelay = (i * 0.35) + 's';
+
+      var rn = document.createElement('span');
+      rn.className = 'rn';
+      rn.textContent = entry.name;
+
+      var ramt = document.createElement('span');
+      ramt.className = 'ramt mono';
+      ramt.textContent = entry.declined ? 'non partecipa' : fmt(entry.amount) + ' crediti';
+
+      li.appendChild(rn);
+      li.appendChild(ramt);
+      els.revealList.appendChild(li);
+    });
+
+    var totalDelay = ordered.length * 350 + 400;
+    setTimeout(function () {
+      els.soldOutcome.style.display = '';
+      els.nextRoundBtn.hidden = false;
+    }, totalDelay);
+  }
+
+  function renderBusta(state) {
+    var pub = state.bustaPublic || {};
+    var required = pub.required || [];
+    var responded = pub.respondedNames || [];
+    var tiebreak = !!pub.tiebreak;
+
+    if (tiebreak) {
+      els.bustaContext.textContent = 'Pareggio a ' + fmt(pub.tiebreakAmount) + ' crediti tra: ' + required.join(', ') + '. Chi era in parità rifà l’offerta.';
+    } else {
+      var snap = state.openSnapshot;
+      els.bustaContext.textContent = snap
+        ? 'I rilanci pubblici si sono fermati a ' + fmt(snap.amount) + ' crediti (ultimo rilancio di ' + (snap.bidder || '—') + ').'
+        : '';
+    }
+
+    var iAmRequired = myName && required.indexOf(myName) !== -1;
+    els.bustaPersonal.hidden = !iAmRequired;
+    els.bustaNotInvolved.hidden = iAmRequired;
+
+    if (iAmRequired) {
+      var iResponded = responded.indexOf(myName) !== -1;
+      els.bustaStatus.textContent = iResponded
+        ? 'Offerta inviata — in attesa degli altri. Puoi ancora modificarla finché non viene rivelato il risultato.'
+        : 'Scrivi la tua offerta segreta, oppure scegli di non partecipare.';
+    }
+
+    els.responderGrid.innerHTML = '';
+    required.forEach(function (name) {
+      var chip = document.createElement('span');
+      var done = responded.indexOf(name) !== -1;
+      chip.className = 'responder-chip' + (done ? ' done' : '');
+      chip.textContent = (done ? '✓ ' : '⏳ ') + name;
+      els.responderGrid.appendChild(chip);
+    });
+
+    var missing = required.filter(function (n) { return responded.indexOf(n) === -1; });
+    var allDone = required.length > 0 && missing.length === 0;
+    els.revealBtn.disabled = !allDone;
+    els.revealWait.textContent = allDone ? 'Tutti hanno risposto: si può rivelare il risultato.' : (missing.length ? 'In attesa di: ' + missing.join(', ') : '');
   }
 
   function renderLog(log) {
@@ -754,20 +1219,13 @@
 
   // ---------- interactions ----------
 
-  els.timerChips.addEventListener('click', function (e) {
-    var chip = e.target.closest('.chip');
-    if (!chip) return;
-    els.timerSeconds.value = chip.dataset.secs;
-    highlightChip(chip.dataset.secs);
-  });
-
   els.startBtn.addEventListener('click', function () {
-    if (!myName) { openNameGate(''); return; }
+    if (!myName) { openNameGate(); return; }
     send({
       type: 'startRound',
+      name: myName,
       itemLabel: els.itemLabel.value,
       startPrice: els.startPrice.value,
-      timerSeconds: els.timerSeconds.value,
     });
     els.itemLabel.value = '';
   });
@@ -776,15 +1234,13 @@
     send({ type: 'dismissSold' });
   });
 
-  els.bidGrid.addEventListener('click', function (e) {
-    var btn = e.target.closest('.bid-btn');
-    if (!btn) return;
-    if (!myName) { openNameGate(''); return; }
-    send({ type: 'bid', name: myName, amount: Number(btn.dataset.amt) });
+  els.plusOneBtn.addEventListener('click', function () {
+    if (!myName) { openNameGate(); return; }
+    send({ type: 'bid', name: myName, amount: 1 });
   });
 
   function submitCustomBid() {
-    if (!myName) { openNameGate(''); return; }
+    if (!myName) { openNameGate(); return; }
     var v = Number(els.customAmt.value);
     if (!v || v < 1) { els.customAmt.focus(); return; }
     send({ type: 'bid', name: myName, amount: Math.round(v) });
@@ -793,10 +1249,32 @@
   els.customBtn.addEventListener('click', submitCustomBid);
   els.customAmt.addEventListener('keydown', function (e) { if (e.key === 'Enter') submitCustomBid(); });
 
-  els.cancelRoundBtn.addEventListener('click', function () {
+  function cancelRound() {
     if (confirm('Annullare questa chiamata e tornare alla schermata iniziale?')) {
       send({ type: 'cancelRound' });
     }
+  }
+  els.cancelRoundBtn.addEventListener('click', cancelRound);
+  els.cancelRoundBtn2.addEventListener('click', cancelRound);
+
+  function submitBustaOffer() {
+    if (!myName) { openNameGate(); return; }
+    var v = Number(els.bustaAmt.value);
+    if (!v || v < 1) { els.bustaAmt.focus(); return; }
+    send({ type: 'bustaOffer', name: myName, amount: Math.round(v) });
+    els.bustaAmt.value = '';
+  }
+  els.bustaSendBtn.addEventListener('click', submitBustaOffer);
+  els.bustaAmt.addEventListener('keydown', function (e) { if (e.key === 'Enter') submitBustaOffer(); });
+
+  els.bustaDeclineBtn.addEventListener('click', function () {
+    if (!myName) { openNameGate(); return; }
+    send({ type: 'bustaDecline', name: myName });
+  });
+
+  els.revealBtn.addEventListener('click', function () {
+    if (!myName) { openNameGate(); return; }
+    send({ type: 'bustaReveal', name: myName });
   });
 
 })();

@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Asta Fantacalcio</title>
+<meta name="description" content="Asta del fantacalcio in tempo reale, sincronizzata tra tutti i partecipanti.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800;900&family=Libre+Franklin:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #eef2ec;
+    --bg-raised: #ffffff;
+    --panel: #ffffff;
+    --ink: #101a14;
+    --ink-dim: #57645b;
+    --line: #d6ddd3;
+    --accent: #d9931f;
+    --accent-ink: #3a2a05;
+    --go: #2f7d46;
+    --go-ink: #ffffff;
+    --danger: #b3402b;
+    --danger-ink: #ffffff;
+    --live-glow: rgba(47, 125, 70, 0.18);
+    --shadow: 0 1px 2px rgba(16, 26, 20, 0.06), 0 8px 24px rgba(16, 26, 20, 0.08);
+    color-scheme: light dark;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0c130f;
+      --bg-raised: #141d17;
+      --panel: #121a15;
+      --ink: #eef3ec;
+      --ink-dim: #9db0a2;
+      --line: #26332b;
+      --accent: #eab04a;
+      --accent-ink: #2c1f04;
+      --go: #4bab68;
+      --go-ink: #06180c;
+      --danger: #e2694c;
+      --danger-ink: #2b0d05;
+      --live-glow: rgba(75, 171, 104, 0.16);
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.45);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0c130f;
+    --bg-raised: #141d17;
+    --panel: #121a15;
+    --ink: #eef3ec;
+    --ink-dim: #9db0a2;
+    --line: #26332b;
+    --accent: #eab04a;
+    --accent-ink: #2c1f04;
+    --go: #4bab68;
+    --go-ink: #06180c;
+    --danger: #e2694c;
+    --danger-ink: #2b0d05;
+    --live-glow: rgba(75, 171, 104, 0.16);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.45);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Libre Franklin', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, .display { font-family: 'Big Shoulders Display', 'Oswald', sans-serif; }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+  button { font-family: inherit; }
+
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding-inline: 16px;
+    padding-block: 14px 100px;
+  }
+
+  /* ---------- topbar ---------- */
+  .topbar {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-family: 'Big Shoulders Display', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .brand .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--danger);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 20%, transparent);
+    flex: none;
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+  .brand .dot.on {
+    background: var(--go);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--go) 20%, transparent);
+  }
+  .identity {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--ink-dim);
+    min-width: 0;
+  }
+  .identity strong { color: var(--ink); font-weight: 600; }
+  .identity span.name-text {
+    max-width: 34vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--bg-raised);
+    color: var(--ink-dim);
+    cursor: pointer;
+    flex: none;
+  }
+  .icon-btn:hover { color: var(--ink); border-color: var(--ink-dim); }
+  .icon-btn:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
+    outline: 2px solid var(--go);
+    outline-offset: 2px;
+  }
+
+  /* ---------- generic panel ---------- */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 20px;
+    margin-top: 16px;
+  }
+  .eyebrow {
+    font-family: 'Big Shoulders Display', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink-dim);
+    margin: 0 0 6px;
+  }
+  .field { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
+  .field label { font-size: 13px; font-weight: 600; color: var(--ink-dim); }
+  .field input[type="text"], .field input[type="number"] {
+    font-size: 16px;
+    padding: 11px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--bg-raised);
+    color: var(--ink);
+    width: 100%;
+  }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .chip {
+    border: 1px solid var(--line);
+    background: var(--bg-raised);
+    color: var(--ink-dim);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .chip.active { border-color: var(--go); color: var(--go); background: color-mix(in srgb, var(--go) 10%, var(--bg-raised)); }
+
+  .btn {
+    appearance: none;
+    border: none;
+    border-radius: 12px;
+    padding: 13px 18px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 16px;
+  }
+  .btn-go { background: var(--go); color: var(--go-ink); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-dim);
+    border: 1px solid var(--line);
+  }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ---------- live scoreboard ---------- */
+  .item-label {
+    font-size: 13px;
+    color: var(--ink-dim);
+    font-weight: 600;
+  }
+  .scoreboard {
+    text-align: center;
+    padding-block: 6px;
+  }
+  .bid-amount {
+    font-size: clamp(56px, 18vw, 92px);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+    margin: 4px 0 2px;
+  }
+  .bid-amount .unit { font-size: 0.32em; font-weight: 700; color: var(--ink-dim); margin-left: 4px; }
+  .bidder {
+    font-size: 15px;
+    color: var(--ink-dim);
+  }
+  .bidder strong { color: var(--go); font-weight: 700; }
+
+  .timerbar {
+    margin-top: 18px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--line);
+    overflow: hidden;
+    position: relative;
+  }
+  .timerbar-fill {
+    height: 100%;
+    width: 100%;
+    background: var(--go);
+    border-radius: 999px;
+    transform-origin: left;
+  }
+  .timerbar-fill.warn { background: var(--accent); }
+  .timerbar-fill.crit { background: var(--danger); }
+  .timer-readout {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--ink-dim);
+  }
+  .timer-readout .secs { font-size: 15px; font-weight: 700; color: var(--ink); }
+
+  .bid-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-top: 22px;
+  }
+  @media (max-width: 420px) {
+    .bid-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  .bid-btn {
+    appearance: none;
+    border: 1px solid var(--go);
+    background: color-mix(in srgb, var(--go) 12%, var(--bg-raised));
+    color: var(--go);
+    border-radius: 12px;
+    padding: 14px 4px;
+    font-family: 'Big Shoulders Display', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    cursor: pointer;
+    min-height: 52px;
+  }
+  .bid-btn:active { transform: translateY(1px); }
+  .bid-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .custom-bid {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .custom-bid input {
+    flex: 1;
+    font-size: 16px;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--bg-raised);
+    color: var(--ink);
+  }
+  .custom-bid button {
+    flex: none;
+    border-radius: 10px;
+    border: none;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-weight: 700;
+    padding: 0 18px;
+    cursor: pointer;
+  }
+  .custom-bid button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .cancel-link {
+    display: block;
+    text-align: center;
+    margin-top: 18px;
+    background: none;
+    border: none;
+    color: var(--ink-dim);
+    font-size: 13px;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 6px;
+  }
+
+  /* ---------- sold banner ---------- */
+  .sold-panel {
+    text-align: center;
+    border-color: var(--accent);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 14%, var(--panel)), var(--panel));
+    animation: sold-pop 0.5s ease-out;
+  }
+  @media (prefers-reduced-motion: reduce) { .sold-panel { animation: none; } }
+  @keyframes sold-pop { from { transform: scale(0.97); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .sold-tag {
+    display: inline-block;
+    font-family: 'Big Shoulders Display', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--accent-ink);
+    background: var(--accent);
+    padding: 5px 14px;
+    border-radius: 999px;
+  }
+  .sold-name { font-size: clamp(26px, 7vw, 34px); font-weight: 800; margin: 14px 0 2px; }
+  .sold-amount { font-size: clamp(44px, 12vw, 60px); font-weight: 800; color: var(--accent); }
+  .sold-item { color: var(--ink-dim); font-size: 14px; margin-top: 2px; }
+
+  /* ---------- log ---------- */
+  .log-panel { margin-top: 16px; }
+  .log-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .log-list {
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .log-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 13px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+  }
+  .log-list .who { font-weight: 600; }
+  .log-list .amt { color: var(--go); font-weight: 700; }
+  .log-empty { font-size: 13px; color: var(--ink-dim); margin-top: 10px; }
+
+  .presence {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    font-size: 12px;
+    color: var(--ink-dim);
+  }
+  .presence .badge {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px 10px;
+    background: var(--bg-raised);
+  }
+
+  .conn-note {
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-dim);
+    margin-top: 10px;
+  }
+
+  /* ---------- name gate ---------- */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: color-mix(in srgb, var(--bg) 92%, black 8%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 50;
+  }
+  .overlay .panel { max-width: 360px; width: 100%; margin: 0; }
+  .overlay h2 { margin: 0 0 4px; font-size: 24px; }
+  .overlay p { color: var(--ink-dim); font-size: 14px; margin: 0; }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand"><span class="dot" id="connDot"></span> Asta Fantacalcio</div>
+    <div class="identity">
+      <span>Tu:</span> <span class="name-text"><strong id="meName">—</strong></span>
+      <button class="icon-btn" id="editNameBtn" type="button" aria-label="Cambia nome" title="Cambia nome">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <section class="panel sold-panel" id="panelSold" hidden>
+      <span class="sold-tag">Aggiudicato</span>
+      <div class="sold-name" id="soldName">—</div>
+      <div class="sold-amount mono" id="soldAmount">0</div>
+      <div class="sold-item" id="soldItem"></div>
+      <button class="btn btn-go" id="nextRoundBtn" type="button">Prossima chiamata</button>
+    </section>
+
+    <section class="panel" id="panelStart" hidden>
+      <p class="eyebrow">Nuova chiamata</p>
+      <h2 style="margin:0;font-size:22px;">Chi mettiamo all'asta?</h2>
+
+      <div class="field">
+        <label for="itemLabel">Nome giocatore <span style="font-weight:400;">(facoltativo)</span></label>
+        <input type="text" id="itemLabel" placeholder="Es. Lookman, attaccante" maxlength="60">
+      </div>
+
+      <div class="field">
+        <label for="startPrice">Prezzo di partenza</label>
+        <input type="number" id="startPrice" value="1" min="0" step="1" inputmode="numeric">
+      </div>
+
+      <div class="field">
+        <label for="timerSeconds">Secondi tra un rilancio e l'altro</label>
+        <input type="number" id="timerSeconds" value="15" min="3" max="180" step="1" inputmode="numeric">
+        <div class="chip-row" id="timerChips">
+          <button type="button" class="chip" data-secs="5">5s</button>
+          <button type="button" class="chip" data-secs="10">10s</button>
+          <button type="button" class="chip active" data-secs="15">15s</button>
+          <button type="button" class="chip" data-secs="20">20s</button>
+          <button type="button" class="chip" data-secs="30">30s</button>
+          <button type="button" class="chip" data-secs="60">60s</button>
+        </div>
+      </div>
+
+      <button class="btn btn-go" id="startBtn" type="button">Avvia l'asta</button>
+    </section>
+
+    <section class="panel" id="panelLive" hidden>
+      <div class="scoreboard">
+        <p class="item-label" id="liveItemLabel"></p>
+        <p class="eyebrow" style="margin-top:10px;">Offerta attuale</p>
+        <div class="bid-amount mono"><span id="liveBid">0</span><span class="unit">crediti</span></div>
+        <p class="bidder">Rilancio di <strong id="liveBidder">base d'asta</strong></p>
+      </div>
+
+      <div class="timerbar"><div class="timerbar-fill" id="timerFill"></div></div>
+      <div class="timer-readout">
+        <span>Tempo al prossimo blocco</span>
+        <span class="secs mono" id="timerSecs">—</span>
+      </div>
+
+      <div class="bid-grid" id="bidGrid">
+        <button class="bid-btn" type="button" data-amt="1">+1</button>
+        <button class="bid-btn" type="button" data-amt="2">+2</button>
+        <button class="bid-btn" type="button" data-amt="3">+3</button>
+        <button class="bid-btn" type="button" data-amt="5">+5</button>
+        <button class="bid-btn" type="button" data-amt="10">+10</button>
+      </div>
+
+      <div class="custom-bid">
+        <input type="number" id="customAmt" placeholder="Rilancio libero, es. 7" min="1" step="1" inputmode="numeric" aria-label="Rilancio libero in crediti">
+        <button type="button" id="customBtn">Rilancia</button>
+      </div>
+
+      <button class="cancel-link" id="cancelRoundBtn" type="button">Annulla questa chiamata</button>
+    </section>
+
+    <section class="panel log-panel">
+      <div class="log-head">
+        <p class="eyebrow" style="margin:0;">Ultimi rilanci</p>
+      </div>
+      <ul class="log-list" id="logList"></ul>
+      <p class="log-empty" id="logEmpty">Nessun rilancio ancora.</p>
+
+      <div class="presence" id="presenceRow"></div>
+      <p class="conn-note" id="connNote">Connessione in corso…</p>
+    </section>
+
+  </div>
+
+  <div class="overlay" id="nameGate">
+    <div class="panel">
+      <h2>Come ti chiami?</h2>
+      <p>Il nome comparirà accanto ai tuoi rilanci, visibile a tutti.</p>
+      <div class="field">
+        <label for="nameInput">Nome o soprannome</label>
+        <input type="text" id="nameInput" maxlength="40" placeholder="Es. Marco" autocomplete="off">
+      </div>
+      <button class="btn btn-go" id="saveNameBtn" type="button">Entra nell'asta</button>
+    </div>
+  </div>
+
+<script>
+(function () {
+  'use strict';
+
+  var els = {
+    connDot: document.getElementById('connDot'),
+    connNote: document.getElementById('connNote'),
+    meName: document.getElementById('meName'),
+    editNameBtn: document.getElementById('editNameBtn'),
+    nameGate: document.getElementById('nameGate'),
+    nameInput: document.getElementById('nameInput'),
+    saveNameBtn: document.getElementById('saveNameBtn'),
+
+    panelSold: document.getElementById('panelSold'),
+    soldName: document.getElementById('soldName'),
+    soldAmount: document.getElementById('soldAmount'),
+    soldItem: document.getElementById('soldItem'),
+    nextRoundBtn: document.getElementById('nextRoundBtn'),
+
+    panelStart: document.getElementById('panelStart'),
+    itemLabel: document.getElementById('itemLabel'),
+    startPrice: document.getElementById('startPrice'),
+    timerSeconds: document.getElementById('timerSeconds'),
+    timerChips: document.getElementById('timerChips'),
+    startBtn: document.getElementById('startBtn'),
+
+    panelLive: document.getElementById('panelLive'),
+    liveItemLabel: document.getElementById('liveItemLabel'),
+    liveBid: document.getElementById('liveBid'),
+    liveBidder: document.getElementById('liveBidder'),
+    timerFill: document.getElementById('timerFill'),
+    timerSecs: document.getElementById('timerSecs'),
+    bidGrid: document.getElementById('bidGrid'),
+    customAmt: document.getElementById('customAmt'),
+    customBtn: document.getElementById('customBtn'),
+    cancelRoundBtn: document.getElementById('cancelRoundBtn'),
+
+    logList: document.getElementById('logList'),
+    logEmpty: document.getElementById('logEmpty'),
+    presenceRow: document.getElementById('presenceRow'),
+  };
+
+  var myName = '';
+  try { myName = localStorage.getItem('astaFanta.name') || ''; } catch (e) {}
+
+  var latestState = null;
+  var ws = null;
+  var wsReady = false;
+  var reconnectDelay = 1000;
+  var tickHandle = null;
+
+  function saveName(n) {
+    myName = n;
+    try { localStorage.setItem('astaFanta.name', n); } catch (e) {}
+    els.meName.textContent = n;
+  }
+
+  function openNameGate(prefill) {
+    els.nameInput.value = prefill || '';
+    els.nameGate.hidden = false;
+    setTimeout(function () { els.nameInput.focus(); }, 30);
+  }
+
+  els.editNameBtn.addEventListener('click', function () { openNameGate(myName); });
+
+  function commitName() {
+    var v = els.nameInput.value.trim();
+    if (!v) { els.nameInput.focus(); return; }
+    saveName(v);
+    els.nameGate.hidden = true;
+    send({ type: 'hello', name: v });
+  }
+  els.saveNameBtn.addEventListener('click', commitName);
+  els.nameInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') commitName(); });
+
+  if (myName) {
+    els.meName.textContent = myName;
+  } else {
+    openNameGate('');
+  }
+
+  // ---------- websocket ----------
+
+  function send(obj) {
+    if (ws && wsReady) {
+      try { ws.send(JSON.stringify(obj)); } catch (e) {}
+    }
+  }
+
+  function connect() {
+    var proto = location.protocol === 'https:' ? 'wss://' : 'ws://';
+    ws = new WebSocket(proto + location.host);
+
+    ws.onopen = function () {
+      wsReady = true;
+      reconnectDelay = 1000;
+      els.connDot.classList.add('on');
+      els.connNote.textContent = 'Connesso — tutti vedono i tuoi rilanci in tempo reale.';
+      if (myName) send({ type: 'hello', name: myName });
+    };
+
+    ws.onclose = function () {
+      wsReady = false;
+      els.connDot.classList.remove('on');
+      els.connNote.textContent = 'Connessione persa, ritento…';
+      setTimeout(connect, reconnectDelay);
+      reconnectDelay = Math.min(reconnectDelay * 1.6, 8000);
+    };
+
+    ws.onerror = function () { try { ws.close(); } catch (e) {} };
+
+    ws.onmessage = function (evt) {
+      var msg;
+      try { msg = JSON.parse(evt.data); } catch (e) { return; }
+      if (msg.type === 'state') {
+        latestState = msg.state;
+        renderState(latestState, msg.presence || []);
+      }
+    };
+  }
+  connect();
+
+  // ---------- render ----------
+
+  function fmt(n) { return (n || 0).toLocaleString('it-IT'); }
+
+  function renderState(state, presence) {
+    els.panelSold.hidden = state.status !== 'sold';
+    els.panelStart.hidden = state.status === 'live' || state.status === 'sold';
+    els.panelLive.hidden = state.status !== 'live';
+
+    if (state.status === 'sold') {
+      els.soldName.textContent = state.soldTo || 'Nessuno';
+      els.soldAmount.textContent = fmt(state.soldAmount) + ' crediti';
+      els.soldItem.textContent = state.soldItem ? state.soldItem : '';
+    }
+
+    if (state.status === 'idle' || state.status === 'sold') {
+      if (document.activeElement !== els.timerSeconds) {
+        els.timerSeconds.value = state.timerSeconds || 15;
+        highlightChip(state.timerSeconds || 15);
+      }
+    }
+
+    if (state.status === 'live') {
+      els.liveItemLabel.textContent = state.itemLabel || '';
+      els.liveItemLabel.style.display = state.itemLabel ? '' : 'none';
+      els.liveBid.textContent = fmt(state.currentBid);
+      els.liveBidder.textContent = state.currentBidder || 'base d’asta';
+      startTicker(state.roundEndsAt, state.timerSeconds || 15);
+    } else {
+      stopTicker();
+    }
+
+    renderLog(state.log || []);
+    renderPresence(presence);
+  }
+
+  function highlightChip(secs) {
+    var chips = els.timerChips.querySelectorAll('.chip');
+    for (var i = 0; i < chips.length; i++) {
+      chips[i].classList.toggle('active', Number(chips[i].dataset.secs) === Number(secs));
+    }
+  }
+
+  function renderLog(log) {
+    els.logList.innerHTML = '';
+    els.logEmpty.hidden = log.length > 0;
+    log.slice(0, 12).forEach(function (entry) {
+      var li = document.createElement('li');
+      var who = document.createElement('span');
+      who.className = 'who';
+      who.textContent = entry.name;
+      var amt = document.createElement('span');
+      amt.className = 'amt mono';
+      amt.textContent = '+' + fmt(entry.amount) + ' → ' + fmt(entry.total);
+      li.appendChild(who);
+      li.appendChild(amt);
+      els.logList.appendChild(li);
+    });
+  }
+
+  function renderPresence(presence) {
+    els.presenceRow.innerHTML = '';
+    if (!presence.length) return;
+    var label = document.createElement('span');
+    label.textContent = 'In collegamento (' + presence.length + '):';
+    els.presenceRow.appendChild(label);
+    presence.forEach(function (name) {
+      var b = document.createElement('span');
+      b.className = 'badge';
+      b.textContent = name;
+      els.presenceRow.appendChild(b);
+    });
+  }
+
+  // ---------- countdown ----------
+
+  function stopTicker() {
+    if (tickHandle) { cancelAnimationFrame(tickHandle); tickHandle = null; }
+  }
+
+  function startTicker(endsAt, totalSecs) {
+    stopTicker();
+    if (!endsAt) return;
+    function tick() {
+      var remainMs = Math.max(0, endsAt - Date.now());
+      var remainSecs = Math.ceil(remainMs / 1000);
+      var pct = Math.max(0, Math.min(1, remainMs / (totalSecs * 1000)));
+      els.timerFill.style.width = (pct * 100) + '%';
+      els.timerFill.classList.toggle('warn', pct <= 0.5 && pct > 0.22);
+      els.timerFill.classList.toggle('crit', pct <= 0.22);
+      els.timerSecs.textContent = remainSecs + 's';
+      if (remainMs > 0) tickHandle = requestAnimationFrame(tick);
+    }
+    tick();
+  }
+
+  // ---------- interactions ----------
+
+  els.timerChips.addEventListener('click', function (e) {
+    var chip = e.target.closest('.chip');
+    if (!chip) return;
+    els.timerSeconds.value = chip.dataset.secs;
+    highlightChip(chip.dataset.secs);
+  });
+
+  els.startBtn.addEventListener('click', function () {
+    if (!myName) { openNameGate(''); return; }
+    send({
+      type: 'startRound',
+      itemLabel: els.itemLabel.value,
+      startPrice: els.startPrice.value,
+      timerSeconds: els.timerSeconds.value,
+    });
+    els.itemLabel.value = '';
+  });
+
+  els.nextRoundBtn.addEventListener('click', function () {
+    send({ type: 'dismissSold' });
+  });
+
+  els.bidGrid.addEventListener('click', function (e) {
+    var btn = e.target.closest('.bid-btn');
+    if (!btn) return;
+    if (!myName) { openNameGate(''); return; }
+    send({ type: 'bid', name: myName, amount: Number(btn.dataset.amt) });
+  });
+
+  function submitCustomBid() {
+    if (!myName) { openNameGate(''); return; }
+    var v = Number(els.customAmt.value);
+    if (!v || v < 1) { els.customAmt.focus(); return; }
+    send({ type: 'bid', name: myName, amount: Math.round(v) });
+    els.customAmt.value = '';
+  }
+  els.customBtn.addEventListener('click', submitCustomBid);
+  els.customAmt.addEventListener('keydown', function (e) { if (e.key === 'Enter') submitCustomBid(); });
+
+  els.cancelRoundBtn.addEventListener('click', function () {
+    if (confirm('Annullare questa chiamata e tornare alla schermata iniziale?')) {
+      send({ type: 'cancelRound' });
+    }
+  });
+
+})();
+</script>
+</body>
+</html>

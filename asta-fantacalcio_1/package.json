@@ -1,0 +1,17 @@
+{
+  "name": "asta-fantacalcio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Asta live del fantacalcio, sincronizzata tra tutti i partecipanti via WebSocket.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.17.1"
+  }
+}

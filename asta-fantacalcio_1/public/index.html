@@ -458,8 +458,11 @@
     border: 1px solid var(--line);
     background: var(--bg-raised);
     color: var(--ink-dim);
+    font-family: inherit;
   }
   .responder-chip.done { border-color: var(--go); color: var(--go); background: color-mix(in srgb, var(--go) 10%, var(--bg-raised)); }
+  button.responder-chip.pending { cursor: pointer; }
+  button.responder-chip.pending:hover { border-color: var(--danger); color: var(--danger); }
   .reveal-wait { text-align: center; font-size: 12px; color: var(--ink-dim); margin-top: 10px; }
 
   /* ---------- reveal sequence ---------- */
@@ -728,6 +731,7 @@
 
         <p class="eyebrow" style="margin-top:18px;">Chi ha già risposto</p>
         <div class="responder-grid" id="responderGrid"></div>
+        <p class="hint">Doppio clic su un nome in attesa per segnarlo come "non partecipa" — utile se qualcuno ha già finito la sua asta ed è andato via.</p>
 
         <button class="btn btn-busta" id="revealBtn" type="button" disabled>Rivela il risultato</button>
         <p class="reveal-wait" id="revealWait"></p>
@@ -1151,10 +1155,17 @@
 
     els.responderGrid.innerHTML = '';
     required.forEach(function (name) {
-      var chip = document.createElement('span');
       var done = responded.indexOf(name) !== -1;
-      chip.className = 'responder-chip' + (done ? ' done' : '');
+      var chip = document.createElement(done ? 'span' : 'button');
+      chip.className = 'responder-chip' + (done ? ' done' : ' pending');
       chip.textContent = (done ? '✓ ' : '⏳ ') + name;
+      if (!done) {
+        chip.type = 'button';
+        chip.title = 'Doppio clic per segnarlo come "non partecipa" (utile se è già andato via)';
+        chip.addEventListener('dblclick', function () {
+          send({ type: 'bustaDecline', name: name });
+        });
+      }
       els.responderGrid.appendChild(chip);
     });
 

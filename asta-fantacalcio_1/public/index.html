@@ -193,6 +193,38 @@
   }
   .hint { font-size: 12px; color: var(--ink-dim); margin: 6px 0 0; }
 
+  .autocomplete-field { position: relative; }
+  .autocomplete-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    z-index: 30;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    max-height: 260px;
+    overflow-y: auto;
+  }
+  .autocomplete-item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    font-size: 15px;
+    color: var(--ink);
+    cursor: pointer;
+    border-bottom: 1px solid var(--line);
+  }
+  .autocomplete-item:last-child { border-bottom: none; }
+  .autocomplete-item:hover, .autocomplete-item.active { background: color-mix(in srgb, var(--go) 12%, var(--bg-raised)); }
+  .autocomplete-item .ac-name { font-weight: 600; }
+  .autocomplete-item .ac-meta { font-size: 12px; color: var(--ink-dim); white-space: nowrap; }
+  .player-match-hint { font-size: 12px; color: var(--go); margin: 2px 0 0; font-weight: 600; }
+
   .btn {
     appearance: none;
     border: none;
@@ -235,6 +267,29 @@
     text-decoration: underline;
     cursor: pointer;
     padding: 4px;
+  }
+  .settings-row {
+    margin-top: 18px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--bg-raised);
+  }
+  .checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .checkbox-label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    flex: none;
+    margin-top: 1px;
+    accent-color: var(--go);
   }
   .roster-editor { margin-top: 14px; }
   .roster-list { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
@@ -666,12 +721,22 @@
         <p class="hint">L'ordine qui sopra è quello con cui ci si alterna a chiamare i giocatori. Trascina non serve: usa le frecce per spostare.</p>
       </div>
 
+      <div class="settings-row">
+        <label class="checkbox-label" for="bustaEnabledToggle">
+          <input type="checkbox" id="bustaEnabledToggle" checked>
+          <span>Usa le buste chiuse sopra i 100 crediti</span>
+        </label>
+        <p class="hint" id="bustaEnabledHint" style="margin-top:6px;">Sopra i 100 crediti i rilanci pubblici si fermano e si passa alle offerte segrete.</p>
+      </div>
+
       <p class="eyebrow" style="margin-top:22px;">Nuova chiamata</p>
       <h2 style="margin:0;font-size:22px;">Chi mettiamo all'asta?</h2>
 
-      <div class="field">
+      <div class="field autocomplete-field">
         <label for="itemLabel">Nome giocatore <span style="font-weight:400;">(facoltativo)</span></label>
-        <input type="text" id="itemLabel" placeholder="Es. Lookman, attaccante" maxlength="60">
+        <input type="text" id="itemLabel" placeholder="Inizia a scrivere, es. Kean" maxlength="60" autocomplete="off">
+        <div class="autocomplete-list" id="playerSuggestions" hidden></div>
+        <p class="player-match-hint" id="playerMatchHint" hidden></p>
       </div>
 
       <div class="field">
@@ -679,7 +744,7 @@
         <input type="number" id="startPrice" value="1" min="0" step="1" inputmode="numeric">
       </div>
 
-      <p class="hint">Rilanci da 10 secondi ciascuno. Sopra i 100 crediti si passa automaticamente alla busta chiusa.</p>
+      <p class="hint" id="startHint">Rilanci da 10 secondi ciascuno. Scrivendo il nome del giocatore compaiono i suggerimenti dal listino ufficiale, con la quotazione già pronta.</p>
 
       <button class="btn btn-go" id="startBtn" type="button">Avvia l'asta</button>
     </section>
@@ -797,6 +862,8 @@
     panelStart: document.getElementById('panelStart'),
     turnLine: document.getElementById('turnLine'),
     turnName: document.getElementById('turnName'),
+    bustaEnabledToggle: document.getElementById('bustaEnabledToggle'),
+    bustaEnabledHint: document.getElementById('bustaEnabledHint'),
     toggleRosterBtn: document.getElementById('toggleRosterBtn'),
     rosterEditor: document.getElementById('rosterEditor'),
     rosterList: document.getElementById('rosterList'),
@@ -804,6 +871,8 @@
     rosterAddBtn: document.getElementById('rosterAddBtn'),
     itemLabel: document.getElementById('itemLabel'),
     startPrice: document.getElementById('startPrice'),
+    playerSuggestions: document.getElementById('playerSuggestions'),
+    playerMatchHint: document.getElementById('playerMatchHint'),
     startBtn: document.getElementById('startBtn'),
 
     panelLive: document.getElementById('panelLive'),
@@ -974,6 +1043,14 @@
     }
     renderRosterEditor(roster);
 
+    var bustaEnabled = msg.bustaEnabled !== false;
+    if (document.activeElement !== els.bustaEnabledToggle) {
+      els.bustaEnabledToggle.checked = bustaEnabled;
+    }
+    els.bustaEnabledHint.textContent = bustaEnabled
+      ? 'Sopra i 100 crediti i rilanci pubblici si fermano e si passa alle offerte segrete.'
+      : 'Buste disattivate: l’asta va avanti a oltranza con i soli rilanci pubblici, qualunque cifra si raggiunga.';
+
     // --- pannello aggiudicato ---
     if (state.status === 'sold') {
       renderSold(state);
@@ -1067,6 +1144,10 @@
   }
   els.rosterAddBtn.addEventListener('click', addRosterName);
   els.rosterAddInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') addRosterName(); });
+
+  els.bustaEnabledToggle.addEventListener('change', function () {
+    send({ type: 'setBustaEnabled', enabled: els.bustaEnabledToggle.checked });
+  });
 
   function renderSold(state) {
     var hasReveal = Array.isArray(state.bustaResult) && state.bustaResult.length > 0;
@@ -1228,6 +1309,98 @@
     tick();
   }
 
+  // ---------- listino giocatori (autocomplete + prezzo) ----------
+
+  var PLAYERS = [];
+  var PLAYERS_BY_NORM = {};
+  var ROLE_LABELS = { P: 'Portiere', D: 'Difensore', C: 'Centrocampista', A: 'Attaccante' };
+
+  function norm(s) {
+    return (s || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim();
+  }
+
+  function loadPlayers() {
+    fetch('players.json').then(function (r) { return r.ok ? r.json() : []; }).then(function (list) {
+      PLAYERS = Array.isArray(list) ? list : [];
+      PLAYERS_BY_NORM = {};
+      PLAYERS.forEach(function (p) { PLAYERS_BY_NORM[norm(p.n)] = p; });
+    }).catch(function () { PLAYERS = []; PLAYERS_BY_NORM = {}; });
+  }
+  loadPlayers();
+
+  function hideSuggestions() {
+    els.playerSuggestions.hidden = true;
+    els.playerSuggestions.innerHTML = '';
+  }
+
+  function applyPlayerMatch(p) {
+    if (!p) {
+      els.playerMatchHint.hidden = true;
+      els.playerMatchHint.textContent = '';
+      return;
+    }
+    els.startPrice.value = p.p;
+    els.playerMatchHint.hidden = false;
+    els.playerMatchHint.textContent = '✓ ' + p.n + ' — ' + (ROLE_LABELS[p.r] || p.r) + ', ' + p.t + ' (quotazione ' + p.p + ')';
+  }
+
+  function renderSuggestions(query) {
+    var q = norm(query);
+    if (!q || q.length < 2 || !PLAYERS.length) { hideSuggestions(); return; }
+    var starts = [];
+    var contains = [];
+    for (var i = 0; i < PLAYERS.length; i++) {
+      var p = PLAYERS[i];
+      var n = norm(p.n);
+      var idx = n.indexOf(q);
+      if (idx === 0) starts.push(p);
+      else if (idx > 0) contains.push(p);
+    }
+    var matches = starts.concat(contains).slice(0, 8);
+    if (!matches.length) { hideSuggestions(); return; }
+    els.playerSuggestions.innerHTML = '';
+    matches.forEach(function (p) {
+      var item = document.createElement('div');
+      item.className = 'autocomplete-item';
+      var nameSpan = document.createElement('span');
+      nameSpan.className = 'ac-name';
+      nameSpan.textContent = p.n;
+      var metaSpan = document.createElement('span');
+      metaSpan.className = 'ac-meta';
+      metaSpan.textContent = (ROLE_LABELS[p.r] || p.r) + ' · ' + p.t + ' · ' + p.p + ' cr.';
+      item.appendChild(nameSpan);
+      item.appendChild(metaSpan);
+      item.addEventListener('mousedown', function (ev) {
+        ev.preventDefault(); // evita che il blur chiuda la lista prima del click
+        els.itemLabel.value = p.n;
+        applyPlayerMatch(p);
+        hideSuggestions();
+      });
+      els.playerSuggestions.appendChild(item);
+    });
+    els.playerSuggestions.hidden = false;
+  }
+
+  els.itemLabel.addEventListener('input', function () {
+    var val = els.itemLabel.value;
+    var exact = PLAYERS_BY_NORM[norm(val)];
+    if (exact) {
+      applyPlayerMatch(exact);
+      hideSuggestions();
+    } else {
+      els.playerMatchHint.hidden = true;
+      renderSuggestions(val);
+    }
+  });
+
+  els.itemLabel.addEventListener('focus', function () {
+    if (els.itemLabel.value.length >= 2 && els.playerMatchHint.hidden) renderSuggestions(els.itemLabel.value);
+  });
+
+  els.itemLabel.addEventListener('blur', function () {
+    setTimeout(hideSuggestions, 150);
+  });
+
   // ---------- interactions ----------
 
   els.startBtn.addEventListener('click', function () {
@@ -1239,6 +1412,9 @@
       startPrice: els.startPrice.value,
     });
     els.itemLabel.value = '';
+    els.startPrice.value = 1;
+    hideSuggestions();
+    els.playerMatchHint.hidden = true;
   });
 
   els.nextRoundBtn.addEventListener('click', function () {
